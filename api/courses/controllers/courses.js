@@ -3,6 +3,7 @@ const { sanitizeEntity } = require("strapi-utils");
 const fetch = require("node-fetch");
 const client = require("@mailchimp/mailchimp_marketing");
 const md5 = require("md5");
+const courses = require("../models/courses");
 
 /**
  * Read the documentation (https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#core-controllers)
@@ -526,6 +527,7 @@ module.exports = {
       let course = sanitizeEntity(entity, {
         model: strapi.models.courses,
       });
+
       let detailedCourse = await strapi
         .query("courses")
         .findOne({ id: course.id }); // this has 'detailed'/complete (but shallow) relationsF
@@ -550,49 +552,50 @@ module.exports = {
           return user.uuid === ctx.state.user.uuid;
         });
 
-        course.grouped_videos.videos.map((videoObj) => {
-          let numberOfMissionsFinished = 0;
-          const finishedWatching = videoObj.users_finished_watching.some(
-            (user) => {
-              return user.uuid === ctx.state.user.uuid;
+        course.grouped_videos &&
+          course.grouped_videos.videos.map((videoObj) => {
+            let numberOfMissionsFinished = 0;
+            const finishedWatching = videoObj.users_finished_watching.some(
+              (user) => {
+                return user.uuid === ctx.state.user.uuid;
+              }
+            );
+            videoObj.finished_watching = finishedWatching;
+            if (!finishedWatching) {
+              videoObj.missions = []; // "hide" missions if user hasnt finished watching
+            } else {
+              videoObj.missions.map((m) => {
+                const userCompletedThisMission = m.users_completed_mission.some(
+                  (user) => {
+                    return user.uuid === ctx.state.user.uuid;
+                  }
+                );
+                m.completed = userCompletedThisMission;
+                if (userCompletedThisMission) numberOfMissionsFinished++;
+                delete m.users_completed_mission;
+                return m;
+              });
             }
-          );
-          videoObj.finished_watching = finishedWatching;
-          if (!finishedWatching) {
-            videoObj.missions = []; // "hide" missions if user hasnt finished watching
-          } else {
-            videoObj.missions.map((m) => {
-              const userCompletedThisMission = m.users_completed_mission.some(
-                (user) => {
-                  return user.uuid === ctx.state.user.uuid;
-                }
-              );
-              m.completed = userCompletedThisMission;
-              if (userCompletedThisMission) numberOfMissionsFinished++;
-              delete m.users_completed_mission;
-              return m;
-            });
-          }
 
-          videoObj.all_missions_completed =
-            numberOfMissionsFinished === 0
-              ? false
-              : numberOfMissionsFinished === videoObj.missions.length; // if user completed 0 missions, then should be false
-          delete videoObj.users_finished_watching;
-        });
+            videoObj.all_missions_completed =
+              numberOfMissionsFinished === videoObj.missions.length &&
+              numberOfMissionsFinished !== 0;
+            delete videoObj.users_finished_watching;
+          });
 
         course.enrolled = userEnrolled;
         course.paid = userPaid;
         if (!userPaid) {
-          course.grouped_videos.videos.map((videoObj, ix) => {
-            if (ix !== 0) {
-              Object.keys(videoObj.bunny_video).map((videoProp) => {
-                if (videoProp !== "title" && videoProp !== "duration") {
-                  delete videoObj.bunny_video[videoProp];
-                }
-              });
-            }
-          });
+          course.grouped_videos &&
+            course.grouped_videos.videos.map((videoObj, ix) => {
+              if (ix !== 0) {
+                Object.keys(videoObj.bunny_video).map((videoProp) => {
+                  if (videoProp !== "title" && videoProp !== "duration") {
+                    delete videoObj.bunny_video[videoProp];
+                  }
+                });
+              }
+            });
           course.bought_on = null;
           course.bought_day_diff = null;
         } else {
@@ -648,6 +651,7 @@ module.exports = {
 
   async findAllNotTaken(ctx) {
     let entities;
+    let formedArr;
     if (ctx.query._q) {
       entities = await strapi.services.courses.search(ctx.query);
     } else {
@@ -671,11 +675,13 @@ module.exports = {
           .map((r) => r.rate)
           .reduce((prev, curr) => prev + curr, 0) / course.rating.length
       ).toPrecision(2);
-      course.grouped_videos.videos.map((vidEntity) => {
-        delete vidEntity.video;
-        delete vidEntity.users_finished_watching;
-        vidEntity.missions = [];
-      });
+      course.grouped_videos &&
+        course.grouped_videos.videos.map((vidEntity) => {
+          delete vidEntity.video;
+          delete vidEntity.users_finished_watching;
+          vidEntity.missions = [];
+        });
+
       if (course.poster) {
         course.image = detailedCourse.poster.url;
         course.thumbnail = detailedCourse.poster.formats.thumbnail.url;
@@ -698,19 +704,13 @@ module.exports = {
       delete course.updated_at;
       return course;
     });
-    let formedArr = Promise.all(promises);
+    formedArr = Promise.all(promises);
     formedArr = formedArr.then((r) => {
-      const cleanArr = r.filter((el, ix) => {
-        const v = el.enrolled_users.findIndex((el) => el.uuid === uuid);
-        let shouldBeReturned = false;
-        if (v > -1) {
-          shouldBeReturned = false; // due to this
-        } else {
-          shouldBeReturned = true;
-        }
-        return shouldBeReturned;
+      const cleanArr = r.filter((el) => {
+        const index = el.enrolled_users.findIndex((el) => el.uuid === uuid); // index >= 0 === user is enrolling this class
+        return index === -1;
       });
-      delete cleanArr.enrolled_users;
+      delete cleanArr[0].enrolled_users;
       return cleanArr;
     });
 
@@ -722,7 +722,7 @@ module.exports = {
     const userCourses = await strapi
       .query("courses")
       .find({ "enrolled_users.uuid": uuid });
-    const userCourseFixed = userCourses.map(async (entity) => {
+    const promises = userCourses.map(async (entity) => {
       let course = sanitizeEntity(entity, {
         model: strapi.models.courses,
       });
@@ -775,48 +775,50 @@ module.exports = {
       let num_of_course_finished = 0;
       let totalDuration = 0;
 
-      course.grouped_videos.videos.map((vidEntity, ix) => {
-        let numOfMissions = vidEntity.missions.length;
-        let numberOfMissionsFinished = 0;
-        vidEntity.duration_seconds = vidEntity.bunny_video.duration;
-        if (ix !== 0) {
-          delete vidEntity.video;
-        }
+      course.grouped_videos &&
+        course.grouped_videos.videos.map((vidEntity, ix) => {
+          let numOfMissions = vidEntity.missions.length;
+          let numberOfMissionsFinished = 0;
+          vidEntity.duration_seconds = vidEntity.bunny_video.duration;
+          if (ix !== 0) {
+            delete vidEntity.video;
+          }
 
-        vidEntity.missions.map((m) => {
-          const userCompletedThisMission = m.users_completed_mission.some(
-            (user) => {
-              return user.uuid === ctx.state.user.uuid;
-            }
-          );
+          vidEntity.missions.map((m) => {
+            const userCompletedThisMission = m.users_completed_mission.some(
+              (user) => {
+                return user.uuid === ctx.state.user.uuid;
+              }
+            );
 
-          m.completed = userCompletedThisMission;
-          if (userCompletedThisMission) numberOfMissionsFinished++;
+            m.completed = userCompletedThisMission;
+            if (userCompletedThisMission) numberOfMissionsFinished++;
 
-          vidEntity.all_missions_completed =
-            numberOfMissionsFinished === 0
-              ? false
-              : numberOfMissionsFinished === numOfMissions; // if user completed 0 missions, then should be false
+            vidEntity.all_missions_completed =
+              numberOfMissionsFinished === 0
+                ? false
+                : numberOfMissionsFinished === numOfMissions; // if user completed 0 missions, then should be false
 
-          if (vidEntity.all_missions_completed) num_of_course_finished++;
-          delete m.users_completed_mission;
+            if (vidEntity.all_missions_completed) num_of_course_finished++;
+            delete m.users_completed_mission;
+          });
+          if (!vidEntity.all_missions_completed) {
+            vidEntity.missions = [];
+          } else {
+            totalDuration += parseFloat(vidEntity.duration_seconds);
+          }
+
+          delete vidEntity.users_finished_watching;
         });
-        if (!vidEntity.all_missions_completed) {
-          vidEntity.missions = [];
-        } else {
-          totalDuration += parseFloat(vidEntity.duration_seconds);
-        }
-
-        delete vidEntity.users_finished_watching;
-      });
       course.all_videos_finished_duration_seconds = totalDuration;
-      course.percentage_course_finished = parseInt(
-        (num_of_course_finished / course.grouped_videos.videos.length) * 100
-      );
+      course.percentage_course_finished = course.grouped_videos
+        ? parseInt(
+            (num_of_course_finished / course.grouped_videos.videos.length) * 100
+          )
+        : 0;
       return course;
     });
-    let formedArr = Promise.all(userCourseFixed);
 
-    return formedArr;
+    return Promise.all(promises);
   },
 };
