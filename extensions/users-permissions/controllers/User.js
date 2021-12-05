@@ -8,10 +8,9 @@ const sanitizeUser = (user) =>
     model: strapi.query("user", "users-permissions").model,
   });
 
-
 const sendgridConfigSetup = () => {
   sgClient.setApiKey(process.env.SENDGRID_API_KEY);
-}
+};
 
 const mailChimpConfigSetup = () => {
   client.setConfig({
@@ -21,7 +20,6 @@ const mailChimpConfigSetup = () => {
 };
 
 const toSendgrid = async (user) => {
-  
   const data = {
     contacts: [
       {
@@ -31,7 +29,7 @@ const toSendgrid = async (user) => {
           lname: user.last_name,
           phone: user.phone_number ? user.phone_number : "",
           tags: ["free"],
-          status : "subscribed"
+          status: "subscribed",
         },
       },
     ],
@@ -45,9 +43,8 @@ const toSendgrid = async (user) => {
 
   const response = await sgClient.request(request);
 
-  return response
-
-}
+  return response;
+};
 
 const toMailchimp = async (user) => {
   const email_address = user.email;
