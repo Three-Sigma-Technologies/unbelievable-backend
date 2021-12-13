@@ -2,6 +2,7 @@
 const { sanitizeEntity } = require("strapi-utils");
 const fetch = require("node-fetch");
 const client = require("@mailchimp/mailchimp_marketing");
+const sgClient = require("@sendgrid/client");
 const md5 = require("md5");
 const courses = require("../models/courses");
 
@@ -31,11 +32,41 @@ const insertToSpecificIndex = (arr, index, newItem) => [
   ...arr.slice(index),
 ];
 
+const sendgridConfigSetup = () => {
+  sgClient.setApiKey(process.env.SENDGRID_API_KEY);
+};
+
 const mailChimpConfigSetup = () => {
   client.setConfig({
     apiKey: process.env.MAILCHIMP_API,
     server: process.env.MAILCHIMP_SERVER_PREFIX,
   });
+};
+
+const toSendgrid = async (payer_email) => {
+  const data = {
+    contacts: [
+      {
+        email: payer_email,
+        custom_fields: {
+          tags: [
+            { name: "paid", status: "active" },
+            { name: "free", status: "inactive" },
+          ],
+        },
+      },
+    ],
+  };
+
+  const request = {
+    url: `/v3/marketing/contacts`,
+    method: "PUT",
+    body: data,
+  };
+
+  const response = await sgClient.request(request);
+
+  return { status: "ok" };
 };
 
 const toMailchimp = async (payer_email) => {
@@ -116,8 +147,10 @@ module.exports = {
 
         if (user.paid_courses.length === 0 || !user.paid_courses) {
           console.log("Updating MC to be 'paid'");
-          mailChimpConfigSetup();
-          await toMailchimp(payer_email);
+          // mailChimpConfigSetup();
+          // await toMailchimp(payer_email);
+          sendgridConfigSetup();
+          await toSendgrid(payer_email);
           console.log("user has been updated to 'paid' (MC)");
         } else {
           console.log(
