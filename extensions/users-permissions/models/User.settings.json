@@ -155,6 +155,10 @@
     "mailchimp_set": {
       "type": "boolean",
       "default": false
+    },
+      "sendgrid_set": {
+      "type": "boolean",
+      "default": false
     }
   }
 }
