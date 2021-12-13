@@ -45,6 +45,7 @@ const mailChimpConfigSetup = () => {
 
 const toSendgrid = async (payer_email) => {
   const data = {
+    list_ids: [process.env.SENDGRID_API_LIST_CONTACT],
     contacts: [
       {
         email: payer_email,
@@ -147,10 +148,10 @@ module.exports = {
 
         if (user.paid_courses.length === 0 || !user.paid_courses) {
           console.log("Updating MC to be 'paid'");
-          mailChimpConfigSetup();
-          await toMailchimp(payer_email);
-          // sendgridConfigSetup();
-          // await toSendgrid(payer_email);
+          // mailChimpConfigSetup();
+          // await toMailchimp(payer_email);
+          sendgridConfigSetup();
+          await toSendgrid(payer_email);
           console.log("user has been updated to 'paid' (MC)");
         } else {
           console.log(
