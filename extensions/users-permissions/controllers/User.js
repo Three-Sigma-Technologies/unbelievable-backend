@@ -27,10 +27,10 @@ const toSendgrid = async (user) => {
         email: user.email,
         first_name: user.first_name,
         last_name: user.last_name,
+        phone_number: user.phone_number ? user.phone_number : "",
         custom_fields: {
-          phone: user.phone_number ? user.phone_number : "",
-          tags: ["free"],
-          status: "subscribed",
+          w2_T: "free", // tags
+          w3_T: "subscribed", // status
         },
       },
     ],
@@ -43,7 +43,6 @@ const toSendgrid = async (user) => {
   };
 
   const response = await sgClient.request(request);
-
   return response;
 };
 

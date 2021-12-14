@@ -50,10 +50,7 @@ const toSendgrid = async (payer_email) => {
       {
         email: payer_email,
         custom_fields: {
-          tags: [
-            { name: "paid", status: "active" },
-            { name: "free", status: "inactive" },
-          ],
+          w2_T: "paid",
         },
       },
     ],
@@ -147,12 +144,12 @@ module.exports = {
         );
 
         if (user.paid_courses.length === 0 || !user.paid_courses) {
-          console.log("Updating MC to be 'paid'");
-          // mailChimpConfigSetup();
-          // await toMailchimp(payer_email);
+          console.log("Updating MC n SG to be 'paid'");
+          mailChimpConfigSetup();
+          await toMailchimp(payer_email);
           sendgridConfigSetup();
           await toSendgrid(payer_email);
-          console.log("user has been updated to 'paid' (MC)");
+          console.log("user has been updated to 'paid' (MC,SG)");
         } else {
           console.log(
             "No need to update MC because it's already set as 'paid'"
