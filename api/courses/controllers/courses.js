@@ -103,6 +103,10 @@ module.exports = {
     //if they are valid (exist and matching) then course model will be updated
     //with new enrolled_users, paid_users, and paid_users_detail
 
+    //adition from dika
+    // need to change invoice callback on xendit dashboard into localhost that masked using ngrok for local development
+    // example http://48c2-158-140-180-35.ngrok.io/xendit-callback instead of localhost:1337/xendit-callback. dont forget to revert it once deployed to staging
+
     console.log("callback called");
     const { external_id, payer_email } = ctx.request.body;
     const pendingPayment = await strapi
