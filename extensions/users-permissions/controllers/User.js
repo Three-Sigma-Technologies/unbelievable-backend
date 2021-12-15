@@ -21,15 +21,16 @@ const mailChimpConfigSetup = () => {
 
 const toSendgrid = async (user) => {
   const data = {
+    list_ids: [process.env.SENDGRID_API_LIST_CONTACT],
     contacts: [
       {
         email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        phone_number: user.phone_number ? user.phone_number : "",
         custom_fields: {
-          fname: user.first_name,
-          lname: user.last_name,
-          phone: user.phone_number ? user.phone_number : "",
-          tags: ["free"],
-          status: "subscribed",
+          w2_T: "free", // tags
+          w3_T: "subscribed", // status
         },
       },
     ],
@@ -42,7 +43,6 @@ const toSendgrid = async (user) => {
   };
 
   const response = await sgClient.request(request);
-
   return response;
 };
 
