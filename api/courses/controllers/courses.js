@@ -45,14 +45,12 @@ const mailChimpConfigSetup = () => {
 
 const toSendgrid = async (payer_email) => {
   const data = {
+    list_ids: [process.env.SENDGRID_API_LIST_CONTACT],
     contacts: [
       {
         email: payer_email,
         custom_fields: {
-          tags: [
-            { name: "paid", status: "active" },
-            { name: "free", status: "inactive" },
-          ],
+          w2_T: "paid",
         },
       },
     ],
@@ -105,6 +103,10 @@ module.exports = {
     //if they are valid (exist and matching) then course model will be updated
     //with new enrolled_users, paid_users, and paid_users_detail
 
+    //adition from dika
+    // need to change invoice callback on xendit dashboard into localhost that masked using ngrok for local development
+    // example http://48c2-158-140-180-35.ngrok.io/xendit-callback instead of localhost:1337/xendit-callback. dont forget to revert it once deployed to staging
+
     console.log("callback called");
     const { external_id, payer_email } = ctx.request.body;
     const pendingPayment = await strapi
@@ -146,12 +148,12 @@ module.exports = {
         );
 
         if (user.paid_courses.length === 0 || !user.paid_courses) {
-          console.log("Updating MC to be 'paid'");
+          console.log("Updating MC n SG to be 'paid'");
           mailChimpConfigSetup();
           await toMailchimp(payer_email);
-          // sendgridConfigSetup();
-          // await toSendgrid(payer_email);
-          console.log("user has been updated to 'paid' (MC)");
+          sendgridConfigSetup();
+          await toSendgrid(payer_email);
+          console.log("user has been updated to 'paid' (MC,SG)");
         } else {
           console.log(
             "No need to update MC because it's already set as 'paid'"
