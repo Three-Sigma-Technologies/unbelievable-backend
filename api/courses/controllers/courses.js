@@ -2,6 +2,7 @@
 const { sanitizeEntity } = require("strapi-utils");
 const fetch = require("node-fetch");
 const client = require("@mailchimp/mailchimp_marketing");
+const sgClient = require("@sendgrid/client");
 const md5 = require("md5");
 const courses = require("../models/courses");
 
@@ -31,11 +32,39 @@ const insertToSpecificIndex = (arr, index, newItem) => [
   ...arr.slice(index),
 ];
 
+const sendgridConfigSetup = () => {
+  sgClient.setApiKey(process.env.SENDGRID_API_KEY);
+};
+
 const mailChimpConfigSetup = () => {
   client.setConfig({
     apiKey: process.env.MAILCHIMP_API,
     server: process.env.MAILCHIMP_SERVER_PREFIX,
   });
+};
+
+const toSendgrid = async (payer_email) => {
+  const data = {
+    list_ids: [process.env.SENDGRID_API_LIST_CONTACT],
+    contacts: [
+      {
+        email: payer_email,
+        custom_fields: {
+          w2_T: "paid",
+        },
+      },
+    ],
+  };
+
+  const request = {
+    url: `/v3/marketing/contacts`,
+    method: "PUT",
+    body: data,
+  };
+
+  const response = await sgClient.request(request);
+
+  return { status: "ok" };
 };
 
 const toMailchimp = async (payer_email) => {
@@ -73,6 +102,10 @@ module.exports = {
 
     //if they are valid (exist and matching) then course model will be updated
     //with new enrolled_users, paid_users, and paid_users_detail
+
+    //adition from dika
+    // need to change invoice callback on xendit dashboard into localhost that masked using ngrok for local development
+    // example http://48c2-158-140-180-35.ngrok.io/xendit-callback instead of localhost:1337/xendit-callback. dont forget to revert it once deployed to staging
 
     console.log("callback called");
     const { external_id, payer_email } = ctx.request.body;
@@ -115,10 +148,12 @@ module.exports = {
         );
 
         if (user.paid_courses.length === 0 || !user.paid_courses) {
-          console.log("Updating MC to be 'paid'");
+          console.log("Updating MC n SG to be 'paid'");
           mailChimpConfigSetup();
           await toMailchimp(payer_email);
-          console.log("user has been updated to 'paid' (MC)");
+          sendgridConfigSetup();
+          await toSendgrid(payer_email);
+          console.log("user has been updated to 'paid' (MC,SG)");
         } else {
           console.log(
             "No need to update MC because it's already set as 'paid'"

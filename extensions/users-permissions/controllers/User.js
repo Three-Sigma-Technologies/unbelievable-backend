@@ -1,16 +1,49 @@
 const { sanitizeEntity } = require("strapi-utils");
 const _ = require("lodash");
 const client = require("@mailchimp/mailchimp_marketing");
+const sgClient = require("@sendgrid/client");
 
 const sanitizeUser = (user) =>
   sanitizeEntity(user, {
     model: strapi.query("user", "users-permissions").model,
   });
+
+const sendgridConfigSetup = () => {
+  sgClient.setApiKey(process.env.SENDGRID_API_KEY);
+};
+
 const mailChimpConfigSetup = () => {
   client.setConfig({
     apiKey: process.env.MAILCHIMP_API,
     server: process.env.MAILCHIMP_SERVER_PREFIX,
   });
+};
+
+const toSendgrid = async (user) => {
+  const data = {
+    list_ids: [process.env.SENDGRID_API_LIST_CONTACT],
+    contacts: [
+      {
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        phone_number: user.phone_number ? user.phone_number : "",
+        custom_fields: {
+          w2_T: "free", // tags
+          w3_T: "subscribed", // status
+        },
+      },
+    ],
+  };
+
+  const request = {
+    url: `/v3/marketing/contacts`,
+    method: "PUT",
+    body: data,
+  };
+
+  const response = await sgClient.request(request);
+  return response;
 };
 
 const toMailchimp = async (user) => {
@@ -132,6 +165,30 @@ module.exports = {
       return await strapi.plugins["users-permissions"].services.user.edit(
         { id: ctx.state.user.id },
         { mailchimp_set: true }
+      );
+    }
+
+    return ctx.badRequest(null, {
+      message: "not found",
+    });
+  },
+
+  async sendgridRegister(ctx) {
+    //register a user to sendgrid
+    // (adding a contact with a tag of 'free' to the Audience)
+    const userFetched = await strapi.plugins[
+      "users-permissions"
+    ].services.user.fetch({
+      id: ctx.state.user.id,
+    });
+
+    if (userFetched && !userFetched.sendgrid_set) {
+      sendgridConfigSetup();
+      await toSendgrid(ctx.state.user);
+
+      return await strapi.plugins["users-permissions"].services.user.edit(
+        { id: ctx.state.user.id },
+        { sendgrid_set: true }
       );
     }
 

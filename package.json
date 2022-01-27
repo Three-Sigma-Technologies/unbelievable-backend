@@ -12,6 +12,7 @@
   "devDependencies": {},
   "dependencies": {
     "@mailchimp/mailchimp_marketing": "^3.0.66",
+    "@sendgrid/client": "^7.6.0",
     "@sentry/node": "^6.13.2",
     "knex": "0.21.18",
     "md5": "^2.3.0",
