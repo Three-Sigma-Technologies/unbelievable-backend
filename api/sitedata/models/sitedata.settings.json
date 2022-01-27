@@ -30,6 +30,15 @@
     },
     "ad_url": {
       "type": "string"
+    },
+    "about": {
+      "type": "text"
+    },
+    "instagram": {
+      "type": "string"
+    },
+    "youtube": {
+      "type": "string"
     }
   }
 }
