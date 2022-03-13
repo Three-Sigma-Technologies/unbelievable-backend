@@ -9,7 +9,6 @@
     "build": "strapi build",
     "strapi": "strapi"
   },
-  "devDependencies": {},
   "dependencies": {
     "@mailchimp/mailchimp_marketing": "^3.0.66",
     "@sendgrid/client": "^7.6.0",
@@ -29,7 +28,7 @@
     "strapi-plugin-content-type-builder": "3.6.8",
     "strapi-plugin-email": "3.6.8",
     "strapi-plugin-i18n": "3.6.8",
-    "strapi-plugin-import-export-content": "^0.4.1",
+    "strapi-plugin-import-export-content": "^0.4.2",
     "strapi-plugin-upload": "3.6.8",
     "strapi-plugin-users-permissions": "3.6.8",
     "strapi-provider-email-nodemailer": "^3.6.8",
