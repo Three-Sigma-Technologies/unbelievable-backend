@@ -1,0 +1,33 @@
+{
+  "kind": "collectionType",
+  "collectionName": "blog_tags",
+  "info": {
+    "name": "BlogTags",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true,
+    "privateAttributes": [
+      "published_at",
+      "created_at",
+      "updated_at"
+    ]
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "tag": {
+      "type": "string"
+    },
+    "blogPosts": {
+      "via": "blogTags",
+      "collection": "blog-posts"
+    },
+    "tagId": {
+      "type": "uid",
+      "targetField": "tag",
+      "required": true
+    }
+  }
+}
