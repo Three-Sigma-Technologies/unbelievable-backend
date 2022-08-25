@@ -156,7 +156,7 @@
       "type": "boolean",
       "default": false
     },
-      "sendgrid_set": {
+    "sendgrid_set": {
       "type": "boolean",
       "default": false
     }
