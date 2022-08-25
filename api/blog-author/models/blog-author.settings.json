@@ -9,7 +9,11 @@
     "increments": true,
     "timestamps": true,
     "draftAndPublish": true,
-    "privateAttributes": ["published_at", "created_at", "updated_at"]
+    "privateAttributes": [
+      "published_at",
+      "created_at",
+      "updated_at"
+    ]
   },
   "pluginOptions": {},
   "attributes": {
@@ -19,7 +23,9 @@
     "profile_picture": {
       "model": "file",
       "via": "related",
-      "allowedTypes": ["images"],
+      "allowedTypes": [
+        "images"
+      ],
       "plugin": "upload",
       "required": false,
       "pluginOptions": {}

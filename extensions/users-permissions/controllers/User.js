@@ -37,7 +37,7 @@ const toSendgrid = async (user) => {
   };
 
   const request = {
-    url: `/v3/marketing/contacts`,
+    url: "/v3/marketing/contacts",
     method: "PUT",
     body: data,
   };
