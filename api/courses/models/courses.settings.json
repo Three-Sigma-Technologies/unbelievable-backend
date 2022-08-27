@@ -9,7 +9,10 @@
     "increments": true,
     "timestamps": true,
     "draftAndPublish": true,
-    "privateAttributes": ["created_at", "updated_at"]
+    "privateAttributes": [
+      "created_at",
+      "updated_at"
+    ]
   },
   "pluginOptions": {},
   "attributes": {
@@ -20,7 +23,9 @@
     "poster": {
       "model": "file",
       "via": "related",
-      "allowedTypes": ["images"],
+      "allowedTypes": [
+        "images"
+      ],
       "plugin": "upload",
       "required": true,
       "pluginOptions": {}

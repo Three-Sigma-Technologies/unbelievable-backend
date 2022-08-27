@@ -159,6 +159,10 @@
     "sendgrid_set": {
       "type": "boolean",
       "default": false
+    },
+    "bookmarked_blog_posts": {
+      "via": "bookmarked_by",
+      "collection": "blog-posts"
     }
   }
 }
