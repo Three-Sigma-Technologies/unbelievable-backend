@@ -58,6 +58,11 @@
       "plugin": "users-permissions",
       "collection": "user",
       "dominant": true
+    },
+    "views": {
+      "type": "string",
+      "required": false,
+      "default": "0"
     }
   }
 }
