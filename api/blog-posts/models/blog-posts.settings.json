@@ -54,9 +54,9 @@
       "type": "string"
     },
     "bookmarked_by": {
+      "via": "bookmarked_blog_posts",
       "plugin": "users-permissions",
       "collection": "user",
-      "via": "bookmarked_blog_posts",
       "dominant": true
     }
   }

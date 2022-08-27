@@ -163,6 +163,11 @@
     "bookmarked_blog_posts": {
       "via": "bookmarked_by",
       "collection": "blog-posts"
+    },
+    "viewedTopics": {
+      "type": "component",
+      "repeatable": true,
+      "component": "viewed-topics.viewed-topics"
     }
   }
 }

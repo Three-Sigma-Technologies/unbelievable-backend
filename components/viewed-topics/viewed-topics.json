@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_viewed_topics_viewed_topics",
+  "info": {
+    "name": "viewedTopics",
+    "icon": "eye",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "blog_topic": {
+      "model": "blog-topics"
+    },
+    "viewCount": {
+      "type": "string",
+      "required": false,
+      "default": "0"
+    }
+  }
+}
