@@ -10,10 +10,9 @@
     "blog_topic": {
       "model": "blog-topics"
     },
-    "viewCount": {
-      "type": "string",
-      "required": false,
-      "default": "0"
+    "views": {
+      "type": "integer",
+      "min": 0
     }
   }
 }
