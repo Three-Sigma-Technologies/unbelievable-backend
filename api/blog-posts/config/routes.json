@@ -18,7 +18,7 @@
     },
     {
       "method": "GET",
-      "path": "/blog-posts/:id",
+      "path": "/blog-posts/:slug",
       "handler": "blog-posts.findOne",
       "config": {
         "policies": []

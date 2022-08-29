@@ -60,9 +60,7 @@
       "dominant": true
     },
     "views": {
-      "type": "string",
-      "required": false,
-      "default": "0"
+      "type": "integer"
     }
   }
 }

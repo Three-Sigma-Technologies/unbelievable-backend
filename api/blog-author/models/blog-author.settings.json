@@ -12,7 +12,8 @@
     "privateAttributes": [
       "published_at",
       "created_at",
-      "updated_at"
+      "updated_at",
+      "profile_picture.formats"
     ]
   },
   "pluginOptions": {},
