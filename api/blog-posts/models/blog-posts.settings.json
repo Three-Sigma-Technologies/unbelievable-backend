@@ -50,9 +50,6 @@
       "type": "uid",
       "targetField": "title"
     },
-    "readTime": {
-      "type": "string"
-    },
     "bookmarked_by": {
       "via": "bookmarked_blog_posts",
       "plugin": "users-permissions",
@@ -61,6 +58,11 @@
     },
     "views": {
       "type": "integer"
+    },
+    "readTime": {
+      "type": "integer",
+      "required": false,
+      "min": 0
     }
   }
 }

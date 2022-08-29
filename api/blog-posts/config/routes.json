@@ -18,6 +18,14 @@
     },
     {
       "method": "GET",
+      "path": "/blog-posts/side-menu-items",
+      "handler": "blog-posts.getSideMenuItems",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
       "path": "/blog-posts/:slug",
       "handler": "blog-posts.findOne",
       "config": {

@@ -7,12 +7,12 @@ const readingTime = require("reading-time");
  */
 
 //Returns in minute(s)
-const getReadingTime = (text) =>
-  Math.round(readingTime(text).minutes).toString();
+const getReadingTime = (text) => Math.round(readingTime(text).minutes);
 
 module.exports = {
   lifecycles: {
     async afterUpdate(data) {
+      console.log(getReadingTime(data.content));
       data.readTime = getReadingTime(data.content);
     },
     async afterCreate(data) {
