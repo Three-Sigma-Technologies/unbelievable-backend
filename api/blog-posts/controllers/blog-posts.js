@@ -123,24 +123,14 @@ module.exports = {
       //Querying all `currentTopics` and getting all of the blog posts
       recommendedBlogPosts = sanitizeEntity(
         await Promise.all(
-          await topicIdsArr.map(async (topicId) => {
-            const blogTopic = await strapi
-              .query("blog-topics")
-              .findOne({ topicId: topicId.toLowerCase() });
-
-            if (blogTopic) {
-              const blogPostsWithTopics = await Promise.all(
-                blogTopic.blogPosts.map(async (post) => {
-                  const blogPosts = await strapi
-                    .query("blog-posts")
-                    .findOne({ slug: post.slug.toLowerCase() });
-                  return { ...post, blogTopics: blogPosts.blogTopics };
-                })
-              );
-
-              return { blogTopic, blogPosts: blogPostsWithTopics };
-            }
-          })
+          await topicIdsArr.map(
+            async (topicId) =>
+              await strapi
+                .query("blog-topics")
+                .findOne({ topicId: topicId.toLowerCase() }, [
+                  "blogPosts.blogTopics",
+                ])
+          )
         ),
         { model: strapi.models["blog-topics"] }
       )
