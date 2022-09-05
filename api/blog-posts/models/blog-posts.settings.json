@@ -63,6 +63,10 @@
       "type": "integer",
       "required": false,
       "min": 0
+    },
+    "blogTopicsText": {
+      "type": "string",
+      "required": false
     }
   }
 }
