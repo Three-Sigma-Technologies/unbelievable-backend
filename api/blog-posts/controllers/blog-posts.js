@@ -70,6 +70,8 @@ module.exports = {
   },
 
   async getSideMenuItems(ctx) {
+    if (!ctx.query.currentPostId) return ctx.notFound();
+
     let allTopics = sanitizeEntity(
       await strapi.query("blog-topics").find({ _limit: -1 }),
       { model: strapi.models["blog-topics"] }
@@ -80,7 +82,7 @@ module.exports = {
     );
 
     let popularBlogPosts = sanitizeEntity(
-      await strapi.query("blog-posts").find({ _sort: "views:desc", _limit: 3 }),
+      await strapi.query("blog-posts").find({ _sort: "views:desc", _limit: 5 }),
       { model: strapi.models["blog-posts"] }
     );
 
@@ -104,7 +106,9 @@ module.exports = {
 
     //Expects `currentTopics` from URL params (request from FE)
     let topicIdsArr = ctx.query.currentTopics.split(",");
+    let currentPostId = ctx.query.currentPostId;
 
+    console.log(ctx.query.currentPostId);
     if (ctx.state.user) {
       const user = await strapi
         .query("user", "users-permissions")
@@ -129,17 +133,17 @@ module.exports = {
                 .query("blog-topics")
                 .findOne({ topicId: topicId.toLowerCase() }, [
                   "blogPosts.blogTopics",
+                  "blogPosts.thumbnail",
                 ])
           )
         ),
         { model: strapi.models["blog-topics"] }
       )
         //   Filters out null values
-        .filter((topicObj) => {
-          return topicObj;
-        })
+        .filter((topicObj) => topicObj)
         //Reduces the array of object of topics with blog posts into an array of objects of blog posts only
         .reduce((acc, topic) => [...acc, ...topic.blogPosts], [])
+        .filter((blogPost) => parseInt(blogPost.id) !== parseInt(currentPostId))
         //Sort by views (descending)
         .sort((a, b) => b.views - a.views)
         //Removes duplicated blog posts
@@ -166,7 +170,9 @@ module.exports = {
     }
 
     return {
-      recommendedBlogPosts,
+      recommendedBlogPosts: recommendedBlogPosts.length
+        ? recommendedBlogPosts
+        : [...popularBlogPosts].splice(0, 3),
       popularBlogPosts,
       allTopics,
       isGuest: !ctx.state.user,
