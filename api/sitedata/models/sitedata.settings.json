@@ -39,6 +39,20 @@
     },
     "youtube": {
       "type": "string"
+    },
+    "ad_picture_blog": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images"
+      ],
+      "plugin": "upload",
+      "required": false,
+      "pluginOptions": {}
+    },
+    "ad_blog_url": {
+      "type": "string",
+      "required": false
     }
   }
 }
