@@ -68,6 +68,25 @@ module.exports = {
       }
     );
   },
+  async bookmarkBlog(ctx) {
+    const { id } = ctx.state.user;
+    // const { uuid } = ctx.params;
+    const { slug } = ctx.request.body;
+    const blogPosts = await strapi.query("blog-posts").find({ slug });
+    if (blogPosts.length === 1) {
+      await strapi
+        .query("blog-posts")
+        .update(
+          { slug },
+          { bookmarked_by: [...blogPosts[0].bookmarked_by, { id }] }
+        );
+      return {
+        status: "bookmarked",
+      };
+    } else {
+      return ctx.notFound();
+    }
+  },
 
   async getSideMenuItems(ctx) {
     if (!ctx.query.currentPostId) return ctx.notFound();

@@ -34,6 +34,14 @@
     },
     {
       "method": "POST",
+      "path": "/blog-posts/bookmark",
+      "handler": "blog-posts.bookmarkBlog",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "POST",
       "path": "/blog-posts",
       "handler": "blog-posts.create",
       "config": {
