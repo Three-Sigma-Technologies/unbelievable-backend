@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_featured_blog_topics_featured_blog_topics",
+  "info": {
+    "name": "FeaturedBlogTopics",
+    "icon": "book-reader",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "blog_topic": {
+      "model": "blog-topics"
+    },
+    "topicName": {
+      "type": "string",
+      "required": true
+    }
+  }
+}

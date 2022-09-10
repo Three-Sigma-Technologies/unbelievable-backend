@@ -38,8 +38,8 @@
       "required": true
     },
     "blogAuthor": {
-      "model": "blog-author",
-      "via": "blogPosts"
+      "via": "blogPosts",
+      "model": "blog-author"
     },
     "blogTopics": {
       "collection": "blog-topics",

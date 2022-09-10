@@ -92,7 +92,9 @@ module.exports = {
     // if (!ctx.query.currentPostId) return ctx.notFound();
 
     let allTopics = sanitizeEntity(
-      await strapi.query("blog-topics").find({ _limit: -1 }),
+      await strapi
+        .query("blog-topics")
+        .find({ _limit: -1, _sort: "topicName:asc" }),
       { model: strapi.models["blog-topics"] }
     );
 

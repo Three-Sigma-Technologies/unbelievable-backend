@@ -53,6 +53,12 @@
     "ad_blog_url": {
       "type": "string",
       "required": false
+    },
+    "featured_blog_topics": {
+      "type": "component",
+      "repeatable": true,
+      "component": "featured-blog-topics.featured-blog-topics",
+      "max": 4
     }
   }
 }
