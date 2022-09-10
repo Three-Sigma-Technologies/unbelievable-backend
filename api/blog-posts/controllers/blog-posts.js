@@ -89,7 +89,7 @@ module.exports = {
   },
 
   async getSideMenuItems(ctx) {
-    if (!ctx.query.currentPostId) return ctx.notFound();
+    // if (!ctx.query.currentPostId) return ctx.notFound();
 
     let allTopics = sanitizeEntity(
       await strapi.query("blog-topics").find({ _limit: -1 }),
@@ -125,9 +125,10 @@ module.exports = {
 
     //Expects `currentTopics` from URL params (request from FE)
     let topicIdsArr = ctx.query.currentTopics.split(",");
-    let currentPostId = ctx.query.currentPostId;
+    let currentPostId = ctx.query.currentPostId
+      ? ctx.query.currentPostId
+      : null;
 
-    console.log(ctx.query.currentPostId);
     if (ctx.state.user) {
       const user = await strapi
         .query("user", "users-permissions")
@@ -142,7 +143,10 @@ module.exports = {
         );
     }
 
-    if (ctx.query.currentTopics || topicIdsArr.length) {
+    if (
+      (ctx.query.currentTopics && ctx.query.currentTopics.length) ||
+      ctx.state.user
+    ) {
       //Querying all `currentTopics` and getting all of the blog posts
       recommendedBlogPosts = sanitizeEntity(
         await Promise.all(
@@ -189,9 +193,7 @@ module.exports = {
     }
 
     return {
-      recommendedBlogPosts: recommendedBlogPosts.length
-        ? recommendedBlogPosts
-        : [...popularBlogPosts].splice(0, 3),
+      recommendedBlogPosts,
       popularBlogPosts,
       allTopics,
       isGuest: !ctx.state.user,
