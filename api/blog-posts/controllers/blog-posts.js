@@ -16,6 +16,21 @@ const cleanupUserViewedTopics = (userViewedTopics) => {
 };
 
 module.exports = {
+  async find(ctx) {
+    let entities;
+    if (ctx.query._q) {
+      entities = await strapi.services["blog-posts"].search(ctx.query);
+    } else {
+      entities = await strapi.services["blog-posts"].find(ctx.query);
+    }
+    const sanitisedBlogPosts = sanitizeEntity(entities, {
+      model: strapi.models["blog-posts"],
+    });
+    return sanitisedBlogPosts.map((blogPost) =>
+      objectCleaner(["bookmarked_by"], blogPost)
+    );
+  },
+
   async findOne(ctx) {
     const result = await strapi
       .query("blog-posts")
@@ -201,4 +216,9 @@ module.exports = {
       isGuest: !ctx.state.user,
     };
   },
+
+  // async blogPostsByTopic(ctx) {
+
+  //   return;
+  // },
 };
