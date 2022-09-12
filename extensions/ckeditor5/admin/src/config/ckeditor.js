@@ -23,7 +23,7 @@ module.exports = {
       "numberedList",
       "todoList",
       "insertImage",
-      "strapiMediaLib",
+      // "strapiMediaLib",
       "|",
       "alignment",
       "indent",

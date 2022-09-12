@@ -28,7 +28,8 @@ const getBlogTopicsText = async (data) => {
 module.exports = {
   lifecycles: {
     async beforeUpdate(_, data) {
-      if (Object.keys(data).length > 1) {
+      console.log({ dataContent: data.content });
+      if (Object.keys(data).length > 1 && data.content) {
         data.readTime = getReadingTime(data.content);
         data.blogTopicsText = await getBlogTopicsText(data);
       }

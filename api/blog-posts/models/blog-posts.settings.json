@@ -10,7 +10,6 @@
     "timestamps": true,
     "draftAndPublish": true,
     "privateAttributes": [
-      "created_at",
       "updated_at"
     ]
   },
@@ -66,6 +65,10 @@
     },
     "blogTopicsText": {
       "type": "string",
+      "required": false
+    },
+    "monthlyViews": {
+      "type": "json",
       "required": false
     }
   }

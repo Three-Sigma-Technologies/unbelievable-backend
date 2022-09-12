@@ -40,9 +40,30 @@ module.exports = {
 
     const newViews = result.views + 1;
 
+    const date = new Date();
+    const monthYear = `${parseInt(
+      date.getUTCMonth() + 1
+    )}-${date.getUTCFullYear()}`;
+
+    let newMonthlyViews = result.monthlyViews
+      ? { ...result.monthlyViews }
+      : { [monthYear]: 1 };
+
+    if (result.monthlyViews) {
+      if (monthYear in newMonthlyViews) {
+        newMonthlyViews[monthYear] = parseInt(newMonthlyViews[monthYear] + 1);
+      } else {
+        newMonthlyViews[monthYear] = 1;
+      }
+    }
+
+    console.log(newMonthlyViews);
     await strapi
       .query("blog-posts")
-      .update({ slug: ctx.params.slug }, { views: newViews });
+      .update(
+        { slug: ctx.params.slug },
+        { views: newViews, monthlyViews: newMonthlyViews }
+      );
 
     if (ctx.state.user && result.blogTopics.length) {
       const user = await strapi.query("user", "users-permissions").findOne({
