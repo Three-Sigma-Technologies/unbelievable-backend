@@ -15,17 +15,49 @@ const cleanupUserViewedTopics = (userViewedTopics) => {
   }));
 };
 
+//Fn below is to search through blog posts, but for searching ?bookmarked_by.id=userId
+//only allow if userId is ctx.state.user (user has logged in and user is userId)
+const freeSearchBlogPosts = async (ctx) => {
+  let entities;
+  const { user } = ctx.state;
+  if (ctx.query._q) {
+    console.log(ctx.query);
+    entities = await strapi.services["blog-posts"].search({
+      ...ctx.query,
+      _limit: -1,
+    });
+  } else {
+    if ("bookmarked_by.id" in ctx.query || "_bookmarked_by.id" in ctx.query) {
+      const searchedUserId = ctx.query["bookmarked_by.id"]
+        ? ctx.query["bookmarked_by.id"]
+        : ctx.query["_bookmarked_by.id"];
+      if (!user) {
+        console.log("No user found");
+        return null;
+      }
+      if (parseInt(searchedUserId) !== parseInt(user.id)) {
+        console.log("User is not searching its own resource");
+        return null;
+      }
+
+      entities = await strapi.services["blog-posts"].find({
+        ...ctx.query,
+        _limit: -1,
+      });
+    } else {
+      entities = await strapi.services["blog-posts"].find({
+        ...ctx.query,
+        _limit: -1,
+      });
+    }
+  }
+  return entities;
+};
+
 module.exports = {
   async find(ctx) {
-    let entities;
-    console.log("SDASDA");
-    if (ctx.query._q) {
-      console.log(ctx.query);
-      entities = await strapi.services["blog-posts"].search(ctx.query);
-    } else {
-      console.log(ctx.query);
-      entities = await strapi.services["blog-posts"].find(ctx.query);
-    }
+    const entities = await freeSearchBlogPosts(ctx);
+    if (!entities) return ctx.forbidden();
     const sanitisedBlogPosts = sanitizeEntity(entities, {
       model: strapi.models["blog-posts"],
     });
@@ -246,18 +278,19 @@ module.exports = {
   },
 
   async getTrendingBlogPosts(ctx) {
-    let entities;
-    if (ctx.query._q) {
-      console.log(ctx.query);
-      entities = await strapi.services["blog-posts"].search(ctx.query);
-    } else {
-      console.log(ctx.query);
-      entities = await strapi.services["blog-posts"].find(ctx.query);
-    }
+    const currentDate = new Date();
+    const currentMoYear = `${
+      currentDate.getUTCMonth() + 1
+    }-${currentDate.getUTCFullYear()}`;
+
+    const entities = await freeSearchBlogPosts(ctx);
+    if (!entities) return ctx.forbidden();
 
     return sanitizeEntity(entities, {
       model: strapi.models["blog-posts"],
-    }).sort((a, b) => b.monthlyViews["9-2022"] - a.monthlyViews["9-2022"]);
+    }).sort(
+      (a, b) => b.monthlyViews[currentMoYear] - a.monthlyViews[currentMoYear]
+    );
   },
 
   // async blogPostsByTopic(ctx) {
