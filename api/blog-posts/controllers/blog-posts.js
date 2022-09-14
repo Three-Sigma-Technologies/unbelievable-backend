@@ -18,9 +18,12 @@ const cleanupUserViewedTopics = (userViewedTopics) => {
 module.exports = {
   async find(ctx) {
     let entities;
+    console.log("SDASDA");
     if (ctx.query._q) {
+      console.log(ctx.query);
       entities = await strapi.services["blog-posts"].search(ctx.query);
     } else {
+      console.log(ctx.query);
       entities = await strapi.services["blog-posts"].find(ctx.query);
     }
     const sanitisedBlogPosts = sanitizeEntity(entities, {
@@ -49,15 +52,19 @@ module.exports = {
       ? { ...result.monthlyViews }
       : { [monthYear]: 1 };
 
+    //This should never be null
     if (result.monthlyViews) {
       if (monthYear in newMonthlyViews) {
         newMonthlyViews[monthYear] = parseInt(newMonthlyViews[monthYear] + 1);
+
+        //This else stmt should never be executed
+        //As [monthYear] will always be there because of CRON job
+        //And lifecycle (for new blogposts)
       } else {
         newMonthlyViews[monthYear] = 1;
       }
     }
 
-    console.log(newMonthlyViews);
     await strapi
       .query("blog-posts")
       .update(
@@ -236,6 +243,21 @@ module.exports = {
       allTopics,
       isGuest: !ctx.state.user,
     };
+  },
+
+  async getTrendingBlogPosts(ctx) {
+    let entities;
+    if (ctx.query._q) {
+      console.log(ctx.query);
+      entities = await strapi.services["blog-posts"].search(ctx.query);
+    } else {
+      console.log(ctx.query);
+      entities = await strapi.services["blog-posts"].find(ctx.query);
+    }
+
+    return sanitizeEntity(entities, {
+      model: strapi.models["blog-posts"],
+    }).sort((a, b) => b.monthlyViews["9-2022"] - a.monthlyViews["9-2022"]);
   },
 
   // async blogPostsByTopic(ctx) {

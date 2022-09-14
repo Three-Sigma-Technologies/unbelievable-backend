@@ -36,8 +36,21 @@ module.exports = {
     },
 
     async beforeCreate(data) {
+      const currentDate = new Date();
+      const moYear = `${
+        currentDate.getUTCMonth() + 1
+      }-${currentDate.getUTCFullYear()}`;
+
+      const nextDate = new Date(
+        currentDate.setMonth(currentDate.getUTCMonth() + 1)
+      ); // current month + 1
+      const nextMoYear = `${
+        nextDate.getUTCMonth() + 1
+      }-${nextDate.getUTCFullYear()}`;
+
       data.readTime = getReadingTime(data.content);
       data.blogTopicsText = await getBlogTopicsText(data);
+      data.monthlyViews = { [moYear]: 0, [nextMoYear]: 0 };
     },
   },
 };

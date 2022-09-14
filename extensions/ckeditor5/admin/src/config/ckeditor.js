@@ -46,7 +46,7 @@ module.exports = {
   image: {
     resizeUnit: "px",
     styles: {
-      options: ["inline", "alignCenter"],
+      options: ["inline", "alignCenter", "alignBlockLeft", "alignLeft", "side"],
     },
   },
   table: {
