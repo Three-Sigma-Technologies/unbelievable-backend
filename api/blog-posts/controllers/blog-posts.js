@@ -15,13 +15,57 @@ const cleanupUserViewedTopics = (userViewedTopics) => {
   }));
 };
 
+const getRecommendedBlogPosts = async (
+  sanitizeEntity,
+  currentPostId,
+  topicIdsArr = []
+) => {
+  let blogPosts = [];
+
+  for (const topicId of topicIdsArr) {
+    if (blogPosts.length === 3) {
+      break;
+    } else {
+      const result = sanitizeEntity(
+        await strapi
+          .query("blog-topics")
+          .findOne({ topicId }, [
+            "blogPosts.blogTopics",
+            "blogPosts.thumbnail",
+          ]),
+        { model: strapi.models["blog-topics"] }
+      )
+        // remove current blogpost
+        .blogPosts.filter(
+          (blogPost) => parseInt(blogPost.id) !== parseInt(currentPostId)
+        )
+        //sort by views (big to small)
+        .sort((a, b) => {
+          return b.views - a.views;
+        })
+        .slice(0, 3);
+
+      blogPosts = [...blogPosts, ...result];
+    }
+  }
+
+  return (
+    [...blogPosts]
+      //Removes duplicated blog posts
+      .filter(
+        (blogPost, index, blogPostsArr) =>
+          index === blogPostsArr.findIndex((bp) => bp.id === blogPost.id)
+      )
+      .slice(0, 3)
+  );
+};
+
 //Fn below is to search through blog posts, but for searching ?bookmarked_by.id=userId
 //only allow if userId is ctx.state.user (user has logged in and user is userId)
 const freeSearchBlogPosts = async (ctx) => {
   let entities;
   const { user } = ctx.state;
   if (ctx.query._q) {
-    console.log(ctx.query);
     entities = await strapi.services["blog-posts"].search({
       ...ctx.query,
       _limit: -1,
@@ -210,14 +254,15 @@ module.exports = {
       const user = await strapi
         .query("user", "users-permissions")
         .findOne({ id: ctx.state.user.id });
-      let usersViewedTopics = user.viewedTopics.slice(0, 3);
 
       //If topics from user are not empty (emptiness is possible due to new account / never read blog before)
       //Then substitute topicIdsArr with those topics
-      if (allTopics.length)
+      if (user.viewedTopics.length) {
+        let usersViewedTopics = user.viewedTopics.slice(0, 3);
         topicIdsArr = usersViewedTopics.map(
           (topic) => topic.blog_topic.topicId
         );
+      }
     }
 
     if (
@@ -225,48 +270,11 @@ module.exports = {
       ctx.state.user
     ) {
       //Querying all `currentTopics` and getting all of the blog posts
-      recommendedBlogPosts = sanitizeEntity(
-        await Promise.all(
-          await topicIdsArr.map(
-            async (topicId) =>
-              await strapi
-                .query("blog-topics")
-                .findOne({ topicId: topicId.toLowerCase() }, [
-                  "blogPosts.blogTopics",
-                  "blogPosts.thumbnail",
-                ])
-          )
-        ),
-        { model: strapi.models["blog-topics"] }
-      )
-        //   Filters out null values
-        .filter((topicObj) => topicObj)
-        //Reduces the array of object of topics with blog posts into an array of objects of blog posts only
-        .reduce((acc, topic) => [...acc, ...topic.blogPosts], [])
-        .filter((blogPost) => parseInt(blogPost.id) !== parseInt(currentPostId))
-        //Sort by views (descending)
-        .sort((a, b) => b.views - a.views)
-        //Removes duplicated blog posts
-        .filter(
-          (blogPost, index, blogPostsArr) =>
-            index === blogPostsArr.findIndex((bp) => bp.id === blogPost.id)
-        )
-        //Top 3 posts
-        .slice(0, 3)
-        //Remove unneeded properties
-        .map((blogPost) => ({
-          ...objectCleaner(
-            [
-              "id",
-              "created_at",
-              "published_at",
-              "content",
-              "blogAuthor",
-              "readTime",
-            ],
-            blogPost
-          ),
-        }));
+      recommendedBlogPosts = await getRecommendedBlogPosts(
+        sanitizeEntity,
+        currentPostId,
+        topicIdsArr
+      );
     }
 
     return {
