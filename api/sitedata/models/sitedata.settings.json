@@ -39,6 +39,26 @@
     },
     "youtube": {
       "type": "string"
+    },
+    "ad_picture_blog": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images"
+      ],
+      "plugin": "upload",
+      "required": false,
+      "pluginOptions": {}
+    },
+    "ad_blog_url": {
+      "type": "string",
+      "required": false
+    },
+    "featured_blog_topics": {
+      "type": "component",
+      "repeatable": true,
+      "component": "featured-blog-topics.featured-blog-topics",
+      "max": 4
     }
   }
 }

@@ -27,5 +27,6 @@ module.exports = ({ env }) => ({
       defaultReplyTo: env("SMTP_USERNAME"),
     },
   },
+
   // ...
 });

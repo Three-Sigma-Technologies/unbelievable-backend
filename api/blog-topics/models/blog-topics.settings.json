@@ -1,0 +1,34 @@
+{
+  "kind": "collectionType",
+  "collectionName": "blog_topics",
+  "info": {
+    "name": "BlogTopics"
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true,
+    "privateAttributes": [
+      "created_at",
+      "updated_at",
+      "published_at"
+    ]
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "topicName": {
+      "type": "string",
+      "required": true,
+      "unique": true
+    },
+    "topicId": {
+      "type": "uid",
+      "targetField": "topicName",
+      "required": true
+    },
+    "blogPosts": {
+      "via": "blogTopics",
+      "collection": "blog-posts"
+    }
+  }
+}

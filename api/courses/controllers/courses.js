@@ -4,7 +4,6 @@ const fetch = require("node-fetch");
 const client = require("@mailchimp/mailchimp_marketing");
 const sgClient = require("@sendgrid/client");
 const md5 = require("md5");
-const courses = require("../models/courses");
 
 /**
  * Read the documentation (https://strapi.io/documentation/developer-docs/latest/development/backend-customization.html#core-controllers)
@@ -57,20 +56,19 @@ const toSendgrid = async (payer_email) => {
   };
 
   const request = {
-    url: `/v3/marketing/contacts`,
+    url: "/v3/marketing/contacts",
     method: "PUT",
     body: data,
   };
 
-  const response = await sgClient.request(request);
+  await sgClient.request(request);
 
   return { status: "ok" };
 };
 
 const toMailchimp = async (payer_email) => {
   const subscriber_hash = md5(payer_email);
-  console.log(subscriber_hash);
-  const response = await client.lists.updateListMemberTags(
+  await client.lists.updateListMemberTags(
     process.env.MAILCHIMP_LIST_ID,
     subscriber_hash,
     {
@@ -301,7 +299,7 @@ module.exports = {
       detailedCourse.course_price.price
     }`;
     //external_id is reference ID
-    const res = await fetch(`https://api.xendit.co/v2/invoices`, {
+    const res = await fetch("https://api.xendit.co/v2/invoices", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -376,9 +374,6 @@ module.exports = {
     if (!userEnrolled) {
       return "Not Found";
     }
-
-    console.log(course[0].grouped_videos);
-    console.log(videoId);
 
     let finishedVidIx = 0;
     let finishedVid = course[0].grouped_videos.videos.filter((v, ix) => {
