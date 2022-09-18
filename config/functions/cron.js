@@ -19,11 +19,16 @@ module.exports = {
   //
   // }
 
-  //Every 20th date at 00:00
+  //Every 20th date of the month at 00:00
   //https://crontab.guru/#0_0_20_*_*
   "0 0 20 * *": async () => {
     const allBlogPosts = await strapi.query("blog-posts").find({ _limit: -1 });
 
+    //For each blog posts
+    //Append/add property of [nextMoYear]: 0 in monthlyViews obj
+
+    //nextMoYear is next month of whatever is current month
+    //If current month is Dec 2022, nextMoYear will be Jan 2023; format: (01-2023)
     allBlogPosts.forEach(async (blogPost) => {
       const currDate = new Date();
 

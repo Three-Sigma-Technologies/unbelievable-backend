@@ -1,0 +1,30 @@
+{
+  "kind": "singleType",
+  "collectionName": "social_embeds",
+  "info": {
+    "name": "SocialEmbeds",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true,
+    "privateAttributes": [
+      "published_at",
+      "created_at",
+      "updated_at"
+    ]
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "ig_access_token": {
+      "type": "component",
+      "repeatable": false,
+      "component": "ig-access-token.ig-access-token"
+    },
+    "youtube_playlist_id": {
+      "type": "string",
+      "required": true
+    }
+  }
+}
