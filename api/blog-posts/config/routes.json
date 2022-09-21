@@ -65,6 +65,7 @@
         "policies": []
       }
     },
+
     {
       "method": "DELETE",
       "path": "/blog-posts/:id",
