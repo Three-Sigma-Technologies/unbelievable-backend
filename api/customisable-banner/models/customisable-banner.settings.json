@@ -1,0 +1,68 @@
+{
+  "kind": "singleType",
+  "collectionName": "customisable_banners",
+  "info": {
+    "name": "customisable-banner",
+    "description": ""
+  },
+  "options": {
+    "increments": true,
+    "timestamps": true,
+    "draftAndPublish": true,
+    "privateAttributes": [
+      "published_at",
+      "created_at",
+      "updated_at"
+    ]
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "content": {
+      "type": "text",
+      "required": true
+    },
+    "button_text": {
+      "type": "string",
+      "required": true
+    },
+    "button_color": {
+      "type": "string",
+      "required": true
+    },
+    "background_color": {
+      "type": "string",
+      "required": true
+    },
+    "image": {
+      "model": "file",
+      "via": "related",
+      "allowedTypes": [
+        "images"
+      ],
+      "plugin": "upload",
+      "required": false,
+      "pluginOptions": {}
+    },
+    "text_color": {
+      "type": "string",
+      "required": true
+    },
+    "button_link_to": {
+      "type": "string",
+      "required": true
+    },
+    "button_text_color": {
+      "type": "string",
+      "required": true
+    },
+    "show": {
+      "type": "boolean",
+      "default": true,
+      "required": true
+    }
+  }
+}

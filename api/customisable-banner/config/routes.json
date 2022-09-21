@@ -1,0 +1,28 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/customisable-banner",
+      "handler": "customisable-banner.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/customisable-banner",
+      "handler": "customisable-banner.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/customisable-banner",
+      "handler": "customisable-banner.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

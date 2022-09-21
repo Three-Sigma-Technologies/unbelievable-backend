@@ -1,0 +1,18 @@
+{
+  "collectionName": "components_ig_access_token_ig_access_tokens",
+  "info": {
+    "name": "ig-access-token",
+    "icon": "angry"
+  },
+  "options": {},
+  "attributes": {
+    "token": {
+      "type": "string",
+      "required": true
+    },
+    "renewed_at": {
+      "required": true,
+      "type": "datetime"
+    }
+  }
+}

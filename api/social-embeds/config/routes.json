@@ -1,0 +1,28 @@
+{
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/social-embeds",
+      "handler": "social-embeds.find",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/social-embeds",
+      "handler": "social-embeds.update",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "DELETE",
+      "path": "/social-embeds",
+      "handler": "social-embeds.delete",
+      "config": {
+        "policies": []
+      }
+    }
+  ]
+}

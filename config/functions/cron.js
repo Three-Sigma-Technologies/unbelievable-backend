@@ -19,11 +19,16 @@ module.exports = {
   //
   // }
 
-  //Every 20th date at 00:00
+  //Every 23rd date of the month at 00:00
   //https://crontab.guru/#0_0_20_*_*
-  "0 0 20 * *": async () => {
+  "0 0 23 * *": async () => {
     const allBlogPosts = await strapi.query("blog-posts").find({ _limit: -1 });
 
+    //For each blog posts
+    //Append/add property of [nextMoYear]: 0 in monthlyViews obj
+
+    //nextMoYear is next month of whatever is current month
+    //If current month is Dec 2022, nextMoYear will be Jan 2023; format: (01-2023)
     allBlogPosts.forEach(async (blogPost) => {
       const currDate = new Date();
 
@@ -40,10 +45,34 @@ module.exports = {
       await strapi.query("blog-posts").update(
         { id: blogPost.id },
         {
-          shortDesc: `Current Date: ${Date.now()}`,
           monthlyViews: { ...blogPost.monthlyViews, ...futureMonthlyViews },
         }
       );
     });
+  },
+  //Every 27th date of the month at 00:00
+  //https://crontab.guru/#0_0_27_*_*
+  "0 0 27 * *": async () => {
+    const currentSocialEmbed = await strapi.query("social-embeds").findOne();
+    const fetchIGToken = await fetch(
+      `https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${currentSocialEmbed.ig_access_token.token}`
+    );
+
+    if (fetchIGToken.ok) {
+      const tokenResponse = await fetchIGToken.json();
+      await strapi.query("social-embeds").update(
+        { id: 1 },
+        {
+          ig_access_token: {
+            id: 1,
+            token: tokenResponse.access_token,
+            renewed_at: new Date(),
+          },
+        }
+      );
+    } else {
+      console.log("[ERROR] Re-fetching new IG token:", new Date());
+      Promise.reject(fetchIGToken);
+    }
   },
 };
