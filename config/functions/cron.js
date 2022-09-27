@@ -1,4 +1,5 @@
 "use strict";
+const fetch = require("node-fetch");
 
 /**
  * Cron config that gives you an opportunity
@@ -20,7 +21,7 @@ module.exports = {
   // }
 
   //Every 23rd date of the month at 00:00
-  //https://crontab.guru/#0_0_20_*_*
+  //https://crontab.guru/#0_0_23_*_*
   "0 0 23 * *": async () => {
     const allBlogPosts = await strapi.query("blog-posts").find({ _limit: -1 });
 
@@ -50,16 +51,20 @@ module.exports = {
       );
     });
   },
-  //Every 27th date of the month at 00:00
-  //https://crontab.guru/#0_0_27_*_*
-  "0 0 27 * *": async () => {
+  //Every 28th date of the month at 00:00
+  //https://crontab.guru/#0_0_28_*_*
+  "0 0 28 * *": async () => {
     const currentSocialEmbed = await strapi.query("social-embeds").findOne();
     const fetchIGToken = await fetch(
       `https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${currentSocialEmbed.ig_access_token.token}`
     );
 
+    console.log(fetchIGToken);
+
     if (fetchIGToken.ok) {
       const tokenResponse = await fetchIGToken.json();
+      console.log("FETCHING SUCCESS", tokenResponse.access_token);
+
       await strapi.query("social-embeds").update(
         { id: 1 },
         {
