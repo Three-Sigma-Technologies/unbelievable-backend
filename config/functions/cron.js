@@ -53,13 +53,15 @@ module.exports = {
   },
   //Every 28th date of the month at 00:00
   //https://crontab.guru/#0_0_28_*_*
-  "0 0 28 * *": async () => {
+  "*/10 * * * *": async () => {
     const currentSocialEmbed = await strapi.query("social-embeds").findOne();
     const fetchIGToken = await fetch(
       `https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${currentSocialEmbed.ig_access_token.token}`
     );
 
+    console.log("=====FETCHING IG TOKEN====");
     console.log(fetchIGToken);
+    console.log("=========");
 
     if (fetchIGToken.ok) {
       const tokenResponse = await fetchIGToken.json();
