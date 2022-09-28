@@ -51,9 +51,9 @@ module.exports = {
       );
     });
   },
-  //Every 28th date of the month at 00:00
-  //https://crontab.guru/#0_0_28_*_*
-  "*/10 * * * *": async () => {
+  //Every 1st date of the month at 00:00
+  //https://crontab.guru/#0_0_1_*_*
+  "0 0 1 * *": async () => {
     const currentSocialEmbed = await strapi.query("social-embeds").findOne();
     const fetchIGToken = await fetch(
       `https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${currentSocialEmbed.ig_access_token.token}`
