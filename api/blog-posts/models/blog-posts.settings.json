@@ -70,6 +70,10 @@
     "monthlyViews": {
       "type": "json",
       "required": false
+    },
+    "seo_keywords": {
+      "type": "string",
+      "required": true
     }
   }
 }

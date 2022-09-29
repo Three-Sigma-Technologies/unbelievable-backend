@@ -56,6 +56,7 @@ const getRecommendedBlogPosts = async (
         (blogPost, index, blogPostsArr) =>
           index === blogPostsArr.findIndex((bp) => bp.id === blogPost.id)
       )
+      .filter((blogPost) => blogPost.published_at !== null)
       .slice(0, 3)
   );
 };
@@ -211,9 +212,11 @@ module.exports = {
     // if (!ctx.query.currentPostId) return ctx.notFound();
 
     let allTopics = sanitizeEntity(
-      await strapi
-        .query("blog-topics")
-        .find({ _limit: -1, _sort: "topicName:asc" }),
+      await strapi.query("blog-topics").find({
+        _limit: -1,
+        _sort: "topicName:asc",
+        published_at_gt: "1999-01-04T22:37:48.911Z",
+      }),
       { model: strapi.models["blog-topics"] }
     );
 
@@ -222,7 +225,11 @@ module.exports = {
     );
 
     let popularBlogPosts = sanitizeEntity(
-      await strapi.query("blog-posts").find({ _sort: "views:desc", _limit: 5 }),
+      await strapi.query("blog-posts").find({
+        _sort: "views:desc",
+        _limit: 5,
+        published_at_gt: "1999-01-04T22:37:48.911Z",
+      }),
       { model: strapi.models["blog-posts"] }
     );
 
@@ -232,7 +239,6 @@ module.exports = {
           "id",
           "blogAuthor",
           "blogTopics",
-          "published_at",
           "bookmarked_by",
           "content",
           "views",
